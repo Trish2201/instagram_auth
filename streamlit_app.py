@@ -147,7 +147,14 @@ with st.sidebar:
         st.markdown('<div class="connection-status not-connected">❌ Not connected to Meta</div>', unsafe_allow_html=True)
         
         # Option 1: Connect via OAuth flow
-        auth_url = meta_auth.generate_auth_url(st.session_state.oauth_state)
+        # auth_url = meta_auth.generate_auth_url(st.session_state.oauth_state)
+        try:
+            auth_url = meta_auth.generate_auth_url(st.session_state.oauth_state)
+        except Exception as e:
+            st.error(f"Error generating Facebook auth URL: {str(e)}")
+        raise
+
+        st.write("Auth URL:", auth_url)  # Debug line
         st.markdown(f"<a href='{auth_url}' target='_self'><button style='background-color:#1877F2; color:white; border:none; padding:10px; border-radius:4px; cursor:pointer; width:100%;'>Connect with Facebook</button></a>", unsafe_allow_html=True)
         
         # Option 2: Manually enter existing token
@@ -161,7 +168,7 @@ with st.sidebar:
                     st.success("Token stored successfully")
                     st.rerun()
 
-# Main content tabs
+# Main content tabss
 tab1, tab2 = st.tabs(["Dashboard", "API Explorer"])
 
 with tab1:
