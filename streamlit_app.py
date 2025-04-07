@@ -7,6 +7,10 @@ import time
 from utils import load_environment, get_config, format_date
 from token_manager import TokenManager
 from auth import MetaAuth
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)  # Set to DEBUG to capture all messages
 
 # Load environment variables
 load_environment()
@@ -93,16 +97,21 @@ st.markdown("Connect Instagram and Facebook accounts to access metrics")
 
 # Handle OAuth callback
 if 'code' in st.query_params and 'state' in st.query_params:
+    logging.debug("OAuth callback triggered.")
+    logging.debug(f"Query parameters: {st.query_params}")
+    
     # Verify state to prevent CSRF
     if st.query_params['state'] == st.session_state.oauth_state:
+        logging.debug("State parameter is valid.")
         with st.spinner("Completing authentication..."):
-            # Exchange code for token
+            # Exchange code for token and store it
             result = meta_auth.complete_oauth_flow(
                 st.session_state.user_id,
                 st.query_params['code']
             )
             
             if result:
+                logging.debug("Authentication successful.")
                 st.success("🎉 Meta account connected successfully!")
                 st.write(f"Connected as: {result['user_info'].get('name')}")
                 
@@ -120,8 +129,10 @@ if 'code' in st.query_params and 'state' in st.query_params:
                 time.sleep(2)
                 st.rerun()
             else:
+                logging.error("Authentication failed: result is None.")
                 st.error("Failed to complete authentication")
     else:
+        logging.warning("Invalid state parameter - possible security issue.")
         st.error("Invalid state parameter - possible security issue")
 
 # Sidebar for connection management
@@ -168,7 +179,7 @@ with st.sidebar:
                     st.success("Token stored successfully")
                     st.rerun()
 
-# Main content tabss
+# Main content tabs
 tab1, tab2 = st.tabs(["Dashboard", "API Explorer"])
 
 with tab1:
